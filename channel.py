@@ -43,20 +43,40 @@ class Channel:
         return self.subscriber_count > self.subscriber_count
 
 
+class Video:
+    def __init__(self, id):
+        self.video_id = id
+        self.video_name = Video.get_video_info(self)["items"][0]["snippet"]["title"]
+        self.video_count = Video.get_video_info(self)["items"][0]["statistics"]["viewCount"]
+        self.like_count = Video.get_video_info(self)["items"][0]["statistics"]["likeCount"]
 
-ch1 = Channel('UCMCgOm8GZkHp8zJ6l7_hIuA')
-ch2 = Channel('UC1eFXmJNkjITxPFWTy6RsWg')
-#vdud.get_channel_info()
-#print(vdud.title)
-#print(vdud.video_count)
-#print(Channel.get_service())
-print(ch1)
-#Youtube-канал: вДудь
-print(ch2)
-#Youtube-канал: Редакция
-print(ch1 > ch2)
-#True
-print(ch1 < ch2)
-#False
-print(ch1 + ch2)
-#13940000
+    @classmethod
+    def get_service(cls):
+        api_key: str = os.getenv('API KEY')
+        youtube = build('youtube', 'v3', developerKey=api_key)
+        return youtube
+
+    def get_video_info(self):
+        video = Video.get_service().videos().list(id=self.video_id, part='snippet,statistics').execute()
+        return video
+
+    def __str__(self):
+        return f"Видео: {self.video_name}"
+
+
+class PLVideo(Video):
+    def __init__(self, id, playlist_id):
+        super().__init__(id)
+        self.playlist_id = playlist_id
+        self.playlist_name = Video.get_video_info(self)["items"][0]["snippet"]["title"]
+
+    def __str__(self):
+        return f"Название видео: {self.video_name}. Название плейлиста: {self.playlist_name}"
+
+
+
+video1 = Video('9lO06Zxhu88')
+video2 = PLVideo('BBotskuyw_M', 'PL7Ntiz7eTKwrqmApjln9u4ItzhDLRtPuD')
+print(video1)
+
+print(video2)
